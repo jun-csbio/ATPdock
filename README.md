@@ -58,10 +58,13 @@ NOTE THAT, IF YOU DONOT KWON THE ATP-BINDING POCKET INFORMATION OF THE QUERY PRO
 
 ## Run example
 ~~~
-  $ python3 ATPdock.py yy/example
+  $ python3 ATPdock.py [ABSOLUTE PATH OF THE QUERY FOLDER]
 ~~~
-NOTE THAT, "yy" should be the absolute path of the example folder.
-The outputted "ATPx" folder, "x" is a number. In the folder, "final.pdb" is the docking result of ATP.
+NOTE THAT, [ABSOLUTE PATH OF THE QUERY FOLDER] SHOULD BE THE ABSOLUTE PATH OF THE QUERY FOLDER, e.g., /home/junh/ATPdock-main/example.
+
+## The docking result
+
+*The docking result of each pocket should be found in the outputted folder, i.e., "ATPx", where "x" is the pocket index number. In each "ATPx" folder, the ATP docking pose could be found in the file of "final.pdb".
 
 ## Update History:
 
