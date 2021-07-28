@@ -9,10 +9,10 @@ A template-based method for ATP-specific protein-ligand docking.
 
 ## Installation:
 
-*Install and configure the softwares of Python3, Java, MGLTools and OpenBabel in your Linux system.
+*Install and configure the softwares of Python3, Java, MGLTools and OpenBabel in your Linux system. Please make sure that python3 includes the modules of 'os', 'math', 'numpy', 'random', 'subprocess', 'sys', and 'shutil'. If any one modules does not exist, please using 'pip3 install XXXX' command install the python revelant module. Here, "XXXX" is one module name.
+
 *Download this repository at https://github.com/brightrao/ATPdock.git. Then, uncompress it and run the following command lines on Linux System.
 
-Please make sure that python3 includes the modules of 'os', 'math', 'numpy', 'random', 'subprocess', 'sys', and 'shutil'. If any one modules does not exist, please using 'pip3 install XXXX' command install the python revelant module. Here, "XXXX" is one module name.
 
 ~~~
   $ chmod -R 777 ./software
@@ -43,7 +43,8 @@ NOTE THAT, THE ABOVE "XXX" SHOULD BE THE ABSOLUTE PATH OF THE DOWNLOADED ATPDOCK
 ~~~
 "pdb.pdb" contains the 3D structure information of the query receptor protein in PDB format.
 
-"tem.txt" has two lines: 1) the first line is sequence identity cutoff, ranging from 0.3 to 1 (suggested 0.3); 2) the second line is searched ligand type. If only search for template proteins that bind to ATP and ADP, the second line is ~ATP~~ADP~. If all ligand types are allowed, the second line is NULL. More ligand type information could be found at https://zhanglab.ccmb.med.umich.edu/BioLiP/ligand.html. For example,
+"tem.txt" has two lines: 1) the first line is sequence identity cutoff, ranging from 0.3 to 1 (suggested 0.3); 
+                         2) the second line is searched ligand type. If only search for template proteins that bind to ATP and ADP, the second line is ~ATP~~ADP~. If all ligand types are allowed, the second line is NULL. More ligand type information could be found at https://zhanglab.ccmb.med.umich.edu/BioLiP/ligand.html. For example,
         0.3
         ~ATP~~ADP~~AMP~~GTP~~GDP~
 
