@@ -39,7 +39,7 @@ NOTE THAT, THE ABOVE [THE ABSOLUTE PATH OF ATPDOCK] SHOULD BE THE ABSOLUTE PATH 
 
 ## Prepare the query folder
 
-*The query folder have to contain three files, i.e., "pdb.pdb", "tem.txt", "pdb.site".
+*The query folder have to only contain three files, i.e., "pdb.pdb", "tem.txt", "pdb.site". Please make sure that the query folder only contains the above three files.
 ~~~
 "pdb.pdb" contains the 3D structure information of the query receptor protein in PDB format.
 
