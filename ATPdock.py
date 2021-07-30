@@ -25,7 +25,7 @@ def read(path, ligtype):
     del act[-1]
     return act
 
-#去掉重复的残基
+# Remove duplicate residues
 def chongfu(test, actz):
     y = 0
     for c in range(len(actz)):
@@ -143,16 +143,16 @@ def clashxu(canxu, chang1):
 def energy(ATPdock, PATH):
     global energyscore
     os.chdir(ATPdock+'/basefile')
-    p = subprocess.Popen('./pythonsh prepare_ligand4.py -l '+ PATH + '/ATP.pdb'+' -o '+ PATH + '/ATP.pdbqt', shell=True)
+    p = subprocess.Popen('./pythonsh prepare_ligand4.py -l '+ PATH + '/final.pdb'+' -o '+ PATH + '/final.pdbqt', shell=True)
     p.wait()
-    result = subprocess.Popen('./vina --score_only --receptor '+ PATH + '/pdb.pdbqt --ligand '+ PATH + '/ATP.pdbqt', shell=True, stdout=subprocess.PIPE)
+    result = subprocess.Popen('./vina --score_only --receptor '+ PATH + '/pdb.pdbqt --ligand '+ PATH + '/final.pdbqt', shell=True, stdout=subprocess.PIPE)
     lines = result.stdout.readlines()
     for i in range(-10, -4):
         if lines[i][0:8] == b'Affinity':
             energyscore = float(lines[i][9:17])
             break
-    os.remove(PATH + '/ATP.pdbqt')
-    os.remove(PATH + '/ATP.pdb')
+    os.remove(PATH + '/final.pdbqt')
+    os.remove(PATH + '/final.pdb')
     return energyscore
 
 def buquan(w, dong, acty, acty1):
@@ -404,34 +404,21 @@ sequence = restype(receptor)
 havesite = 0  # site number
 
 if os.path.exists(dock_path + '/pdb.site') == 0:
-    # predict binding pocket
-    print('predict binding pocket')
-    os.mkdir(dock_path + '/site')
-    os.chdir(ATPdock + '/ATPbind/jar')
-    p = subprocess.Popen('java -jar ATPbind.jar pdb ' + sequence + ' ' + receptor + ' false ' + dock_path + '/site', shell=True)
-    p.wait()
-    print('pocket is done')
-
-    #save binding site
-    sitefile = dock_path + '/site/pdb.pockets'
+    havesite = 0
+else:
+    sitefile = dock_path + '/pdb.site'
     file = open(sitefile)
     lines = file.readlines()
     for i in range(len(lines)):
         line = lines[i]
-        if line[0:3] == 'pdb' and line[4:7] == 'BS0' and len(line) > 9:
+        if len(line) != 0:
             havesite += 1
-            os.mkdir(dock_path + '/ATPa' + line[7])
-            copy(receptor, dock_path + '/ATPa' + line[7] + '/pdb.pdb')
-            site = open(dock_path + '/ATPa' + line[7] + '/pdb.site', 'w+')
-            print(line[9:], end='', file=site)
+            os.mkdir(dock_path + '/ATPa' + str(havesite))
+            copy(receptor, dock_path + '/ATPa' + str(havesite) + '/pdb.pdb')
+            site = open(dock_path + '/ATPa' + str(havesite) + '/pdb.site', 'w+')
+            print(line.strip(), end='', file=site)
             site.close()
 
-else:
-    os.mkdir(dock_path + '/ATPa1')
-    copy(receptor, dock_path + '/ATPa1/pdb.pdb')
-    copy(dock_path + '/pdb.site', dock_path + '/ATPa1/pdb.site')
-    havesite = 1
-    
 if havesite != 0:
     rankscore = []
     for s in range(1, havesite + 1):
@@ -496,7 +483,7 @@ if havesite != 0:
         p = subprocess.Popen('obabel -ipdb ' + workpath + '/mu.pdb' + ' -omol2 -O ' + workpath + '/mu.mol2', shell=True)
         p.wait()
         os.chdir(ATPdock+'/basefile')
-        align = subprocess.Popen('./LSalign ' + ATPdock + '/basefile/4zibA_ATP.mol2 ' + workpath + '/mu.mol2'+' -rf 1 -o '+ workpath + '/initialATP.pdb', shell=True, stdout=subprocess.PIPE)
+        align = subprocess.Popen('./LSalign ' + ATPdock + '/basefile/4zibA_ATP.mol2 ' + workpath + '/mu.mol2'+' -rf 1 -o '+ workpath + '/initialATP.pdb -a '+ workpath + '/align.txt -m '+ workpath + '/matrix.txt', shell=True, stdout=subprocess.PIPE)
         align.wait()
         lines = align.stdout.readlines()
         output = lines[3].split()
@@ -509,20 +496,19 @@ if havesite != 0:
         path = workpath + '/initialATP.pdb'  # initial docking ATP
         acty = read(path, 'QUE')
         initialatp = acty[:]
+        generatepdb(workpath, baseATP, acty, 'rough')
 
         # read binding pocket residues
         file = open(workpath + '/pdb.site')
         lines = file.readlines()
-        residue = []
-        for y in range(len(lines[0])):
-            if lines[0][y].isalpha() and lines[0][y + 1].isdigit():
-                residue.append(y + 1)
+        canxu = lines[0].strip('\n')
+        canxu = canxu.split(' ')
+        for k in range(len(canxu)):
+            canxu[k] = canxu[k][1:]
 
-        canxu = []
-        for re in range(len(residue) - 1):
-            canxu.append(lines[0][residue[re]:residue[re + 1] - 2])
-        canxu.append(lines[0][residue[-1]:-1])
-
+        # divide receptor to pocket and nopocket
+        pocketpdb = open(workpath + '/pocket.pdb', 'w+')
+        nopocketpdb = open(workpath + '/nopocket.pdb', 'w+')
         # receptor clash residue coordinate
         file = open(receptor)
         lines = file.readlines()
@@ -531,25 +517,28 @@ if havesite != 0:
         n = 0
         for k in range(len(lines)):
             line = lines[k]
-            if line[:4] == 'ATOM' and line[13] != 'E':
-                for k in range(len(canre)):
-                    if line[23:26] == str(canre[k]) or line[23:26] == ' ' + str(canre[k]) or line[23:26] == '  ' + str(canre[k]):
-                        zuobiao[n].append(canre[k])  # residue index
-                        zuobiao[n].append(line[13])  # atom type
-                        zuobiao[n].append(line[30:38])
-                        zuobiao[n].append(line[38:46])
-                        zuobiao[n].append(line[46:54])
-                        n = n + 1
-                        zuobiao.append([])
-                        break
+            if line[0:4] == 'ATOM' and line[22:26].strip() in canxu :
+                print(line, end='', file = pocketpdb)
+            if line[0:4] == 'ATOM' and line[22:26].strip() not in canxu:
+                print(line, end='', file = nopocketpdb)
+            if line[0:4] == 'ATOM' and line[13] != 'E' and int(line[22:26].strip()) in canre:
+                zuobiao[n].append(int(line[22:26].strip()))  # residue index
+                zuobiao[n].append(line[13])  # atom type
+                zuobiao[n].append(line[30:38])
+                zuobiao[n].append(line[38:46])
+                zuobiao[n].append(line[46:54])
+                n = n + 1
+                zuobiao.append([])
         del zuobiao[-1]
+        pocketpdb.close()
+        nopocketpdb.close()
 
         Tem = 0.3
         Temper = 0.02
         storescore = []
         individual = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         # template score
-        generatepdb(workpath, baseATP, initialatp, 'ATP')
+        generatepdb(workpath, baseATP, initialatp, 'final')
         bestresult = acty[:]
         initialclash = energyclash(zuobiao, bestresult)
 
@@ -562,7 +551,7 @@ if havesite != 0:
                 for h in range(10):
                     newindividual = newindi(individual)
                     acty2 = out(acty, newindividual)
-                    generatepdb(workpath, baseATP, acty2, 'ATP')
+                    generatepdb(workpath, baseATP, acty2, 'final')
                     power = energy(ATPdock, workpath)
                     storescore.append(power)
                     receive = 0
@@ -608,9 +597,9 @@ if havesite != 0:
                     t = t + 1
                 if t >= 100:
                     initial1 = energyclash(zuobiao, bestresult)
-                    if initial1 == 0:
+                    if initial1 == 0 or t==30000:
                         break
-            generatepdb(workpath, baseATP, bestresult, 'ATP')
+            generatepdb(workpath, baseATP, bestresult, 'final')
         print('docking is done')
         score = open(workpath + '/score.txt', 'w+')        
         print('PSscore=' + str(psscore), file=score)
@@ -633,4 +622,4 @@ if havesite != 0:
     print('ATPdock finished successfully')
 
 else:
-    print('The protein has not ATP binding site, program terminate')
+    print('There have no pdb.site information, program terminate')
