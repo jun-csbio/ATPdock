@@ -37,7 +37,7 @@ PPSSEARCH_DATABASE_ABSOLUTE_PATH=[THE ABSOLUTE PATH OF ATPDOCK]/PLDB
 NOTE THAT, THE ABOVE [THE ABSOLUTE PATH OF ATPDOCK] SHOULD BE THE ABSOLUTE PATH OF THE DOWNLOADED AND xx ATPDOCK PACKAGE, e.g., /home/junh/ATPdock-main
 
 
-## Prepare the query folder
+## Prepare the query folder (see the "example" folder)
 
 *The query folder have to only contain three files, i.e., "pdb.pdb", "tem.txt", "pdb.site". Please make sure that the query folder only contains the above three files.
 ~~~
