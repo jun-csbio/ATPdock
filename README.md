@@ -11,7 +11,7 @@ A template-based method for ATP-specific protein-ligand docking.
 
 *Install and configure the softwares of Python3, Java, MGLTools and OpenBabel in your Linux system. Please make sure that python3 includes the modules of 'os', 'math', 'numpy', 'random', 'subprocess', 'sys', and 'shutil'. If any one modules does not exist, please using 'pip3 install XXXX' command install the python revelant module. Here, "XXXX" is one module name.
 
-*Download this repository at https://github.com/brightrao/ATPdock.git. Then, uncompress it and run the following command lines on Linux System.
+*Download this repository at https://github.com/jun-csbio/ATPdock.git. Then, uncompress it and run the following command lines on Linux System.
 
 
 ~~~
